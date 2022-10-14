@@ -1,45 +1,49 @@
 package com.bridgelabz;
 
-public class LinkedList<K, V> {
-    MyMapNode head;
-    MyMapNode tail;
+public class MyHashmap<K,V> {
+    public static final int numOfBuckets=5;
+    public static final int numOfBuckets=10;
+    LinkedList<K,V>[] myBucketArray;
 
-    public void append(MyMapNode<K, V> node) {
-        if (head == null) {
-            head = (MyMapNode) node;
-        } else {
-            tail.setNext(node);
+    public MyHashmap() {
+        this.myBucketArray = new LinkedList[numOfBuckets];
+        for (int i = 0; i < numOfBuckets ; i++) {
+            myBucketArray[i]=new LinkedList<>();
         }
-        tail = (MyMapNode) node;
+    }
+    public void put(K key, V value){
+        MyMapNode<K,V> myMapNode= new MyMapNode<>(key, value);
+        int index=getIndex(myMapNode.getKey());
+        if (myBucketArray[index]==null) {
+            myBucketArray[index]= new LinkedList<>();
+            myBucketArray[index].append((MyMapNode<K, V>) myMapNode);
+        }else {
+            MyMapNode myMapNode1= myBucketArray[index].search(key);
+            if (myMapNode1 != null){
+                myMapNode1.setValue( (V) (Integer)( (int)myMapNode1.getValue() + 1 ) );
+            }else {
+                myBucketArray[index].append((MyMapNode<K, V>) myMapNode);
+            }
+        }
+    }
+    public int getIndex(Object obj){
+        int hashCode=Math.abs(obj.hashCode())%numOfBuckets;
+        return hashCode;
+    }
+    public void print(){
+        for (LinkedList linkedList: myBucketArray) {
+            linkedList.print();
+        }
     }
 
-    public MyMapNode search(K key) {
-        if (head == null) {
-            return null;
-        } else {
-            MyMapNode node = head;
-            while (!node.getKey().equals(key)) {
-                if (node == tail && !node.getKey().equals(key)) {
-                    return null;
-                }
-                node = node.getNext();
-            }
-            return node;
+    public static void main(String[] args) {
+        MyHashmap<String,Integer> myHashmap=new MyHashmap<>();
+        String sentence="To be or not to be";
+        String sentence="Paranoids are not paranoid because they are paranoid but because they keep putting themselves deliberately into paranoid avoidable situations";
+        String[] wordArray=sentence.split(" ");
+        for (String word : wordArray) {
+            myHashmap.put(word, 1);
         }
-
-    }
-
-    public void print() {
-        if (head == null) {
-            System.out.println("null");
-        } else {
-            MyMapNode myMapNode = head;
-            System.out.print("{ ");
-            while (!(myMapNode == null)) {
-                System.out.print(myMapNode.getKey() + "=" + myMapNode.getValue() + ", ");
-                myMapNode = myMapNode.getNext();
-            }
-            System.out.println("}");
-        }
+        myHashmap.print();
     }
 }
